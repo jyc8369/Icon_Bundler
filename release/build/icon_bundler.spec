@@ -5,7 +5,9 @@ from PyInstaller.utils.hooks import collect_submodules
 
 
 block_cipher = None
-ROOT = Path(__file__).resolve().parents[2]
+# PyInstaller executes spec files via exec(), so __file__ is not available here.
+# The workflow runs from release/build, so two parents up is the repository root.
+ROOT = Path.cwd().resolve().parents[1]
 
 hiddenimports = []
 hiddenimports += collect_submodules("customtkinter")
