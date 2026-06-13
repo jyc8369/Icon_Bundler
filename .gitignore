@@ -1,0 +1,7 @@
+__pycache__
+.venv/
+dist/
+.DS_Store
+release/build/build/
+release/build/dist/
+release/artifacts/

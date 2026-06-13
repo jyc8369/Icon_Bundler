@@ -1,3 +1,0 @@
-([('IconBundler',
-   '/Users/jyc8369/Documents/icon-bundler/dist/IconBundler',
-   'EXECUTABLE')],)
