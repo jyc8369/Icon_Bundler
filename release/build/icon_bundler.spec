@@ -9,11 +9,13 @@ block_cipher = None
 # PyInstaller executes spec files via exec(), so __file__ is not available here.
 # The workflow runs from release/build, so two parents up is the repository root.
 ROOT = Path.cwd().resolve().parents[1]
+ICON_DIR = Path.cwd().resolve()
 
 hiddenimports = []
 hiddenimports += collect_submodules("customtkinter")
 hiddenimports += collect_submodules("darkdetect")
 hiddenimports += collect_submodules("PIL")
+hiddenimports += ["i18n"]
 
 
 a = Analysis(
@@ -38,6 +40,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="IconBundler",
+    icon=str(ICON_DIR / "icon.ico"),
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -63,6 +66,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name="IconBundler.app",
-    icon=None,
+    icon=str(ICON_DIR / "icon.icns"),
     bundle_identifier="com.iconbundler.app",
 )

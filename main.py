@@ -10,6 +10,7 @@ from tkinter import filedialog, messagebox
 try:
     import customtkinter as ctk
     from PIL import Image, ImageOps
+    import PIL.IcnsImagePlugin  # registers ICNS save support
 except ImportError as exc:
     raise SystemExit(
         "Missing dependencies. Install them with `pip install -r requirements.txt`."
@@ -18,7 +19,8 @@ except ImportError as exc:
 from i18n import DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES, get_text
 
 
-TARGET_SIZES = [(16, 16), (32, 32), (48, 48), (256, 256)]
+ICO_SIZES = [(16, 16), (32, 32), (48, 48), (256, 256)]
+ICNS_SIZES = [(16, 16), (32, 32), (64, 64), (128, 128), (256, 256), (512, 512)]
 MAX_ICON_SIZE = 256
 SUPPORTED_EXTENSIONS = {".png", ".jpg", ".jpeg"}
 LANG_ENV = "ICON_BUNDLER_LANGUAGE"
@@ -30,33 +32,44 @@ except AttributeError:  # Pillow < 9
     RESAMPLE_LANCZOS = Image.LANCZOS
 
 
-def build_icon_source(image: Image.Image) -> Image.Image:
-    """Resize the source image into a square RGBA canvas for ICO export."""
+def build_icon_source(image: Image.Image, canvas_size: int) -> Image.Image:
+    """Resize the source image into a square RGBA canvas for icon export."""
     prepared = ImageOps.exif_transpose(image).convert("RGBA")
     # Keep the original aspect ratio and pad with transparency instead of stretching.
     contained = ImageOps.contain(
         prepared,
-        (MAX_ICON_SIZE, MAX_ICON_SIZE),
+        (canvas_size, canvas_size),
         method=RESAMPLE_LANCZOS,
     )
 
-    canvas = Image.new("RGBA", (MAX_ICON_SIZE, MAX_ICON_SIZE), (0, 0, 0, 0))
-    offset_x = (MAX_ICON_SIZE - contained.width) // 2
-    offset_y = (MAX_ICON_SIZE - contained.height) // 2
+    canvas = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+    offset_x = (canvas_size - contained.width) // 2
+    offset_y = (canvas_size - contained.height) // 2
     canvas.alpha_composite(contained, (offset_x, offset_y))
     return canvas
 
 
-def convert_image_to_ico(source_path: Path) -> Path:
-    """Convert a PNG/JPG image into a multi-size ICO file."""
-    if source_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
-        raise ValueError("PNG, JPG, JPEG 파일만 변환할 수 있습니다.")
+def build_icon_sizes(original_size: tuple[int, int], available_sizes: list[tuple[int, int]]) -> list[tuple[int, int]]:
+    """Keep sizes in ascending order and stop before the first upscale."""
+    max_dimension = min(original_size)
+    selected_sizes = [size for size in available_sizes if size[0] <= max_dimension and size[1] <= max_dimension]
+    if not selected_sizes:
+        selected_sizes = [available_sizes[0]]
+    return selected_sizes
 
-    output_path = source_path.with_suffix(".ico")
+
+def convert_image(source_path: Path, output_suffix: str, format_name: str) -> Path:
+    """Convert a PNG/JPG image into a multi-size icon file."""
+    if source_path.suffix.lower() not in SUPPORTED_EXTENSIONS:
+        raise ValueError("PNG, JPG, JPEG files only.")
+
+    output_path = source_path.with_suffix(output_suffix)
 
     with Image.open(source_path) as image:
-        ico_base = build_icon_source(image)
-        ico_base.save(output_path, format="ICO", sizes=TARGET_SIZES)
+        icon_sizes = build_icon_sizes(image.size, ICNS_SIZES if format_name == "ICNS" else ICO_SIZES)
+        canvas_size = icon_sizes[-1][0]
+        icon_base = build_icon_source(image, canvas_size)
+        icon_base.save(output_path, format=format_name, sizes=icon_sizes)
 
     return output_path
 
@@ -116,6 +129,7 @@ class IconBundlerApp(ctk.CTk):
         body = ctk.CTkFrame(self, corner_radius=18)
         body.grid(row=1, column=0, padx=18, pady=10, sticky="nsew")
         body.grid_columnconfigure(1, weight=1)
+        body.grid_columnconfigure(2, weight=0)
 
         select_button = ctk.CTkButton(
             body,
@@ -125,13 +139,21 @@ class IconBundlerApp(ctk.CTk):
         )
         select_button.grid(row=0, column=0, padx=20, pady=(20, 12), sticky="w")
 
-        convert_button = ctk.CTkButton(
+        convert_ico_button = ctk.CTkButton(
             body,
-            text=get_text(self.language.get(), "convert"),
-            command=self.convert_clicked,
+            text=get_text(self.language.get(), "convert_ico"),
+            command=lambda: self.convert_clicked(".ico", "ICO"),
             width=120,
         )
-        convert_button.grid(row=0, column=1, padx=20, pady=(20, 12), sticky="e")
+        convert_ico_button.grid(row=0, column=1, padx=(20, 8), pady=(20, 12), sticky="e")
+
+        convert_icns_button = ctk.CTkButton(
+            body,
+            text=get_text(self.language.get(), "convert_icns"),
+            command=lambda: self.convert_clicked(".icns", "ICNS"),
+            width=120,
+        )
+        convert_icns_button.grid(row=0, column=2, padx=(8, 20), pady=(20, 12), sticky="e")
 
         source_label = ctk.CTkLabel(body, text=get_text(self.language.get(), "source_label"))
         source_label.grid(row=1, column=0, padx=20, pady=(10, 4), sticky="w")
@@ -205,7 +227,7 @@ class IconBundlerApp(ctk.CTk):
         self.output_var.set(str(source.with_suffix(".ico")))
         self.status_var.set(get_text(self.language.get(), "status_idle"))
 
-    def convert_clicked(self) -> None:
+    def convert_clicked(self, output_suffix: str, format_name: str) -> None:
         if self.source_path is None:
             messagebox.showwarning(
                 get_text(self.language.get(), "warning_title"),
@@ -213,7 +235,7 @@ class IconBundlerApp(ctk.CTk):
             )
             return
 
-        output_path = self.source_path.with_suffix(".ico")
+        output_path = self.source_path.with_suffix(output_suffix)
         if output_path.exists():
             overwrite = messagebox.askyesno(
                 get_text(self.language.get(), "overwrite_title"),
@@ -224,7 +246,7 @@ class IconBundlerApp(ctk.CTk):
                 return
 
         try:
-            result = convert_image_to_ico(self.source_path)
+            result = convert_image(self.source_path, output_suffix, format_name)
         except Exception as exc:
             messagebox.showerror(
                 get_text(self.language.get(), "convert_error_title"),
@@ -244,10 +266,6 @@ class IconBundlerApp(ctk.CTk):
         if language not in SUPPORTED_LANGUAGES:
             self.language.set(DEFAULT_LANGUAGE)
             language = DEFAULT_LANGUAGE
-
-        current_language = self.language.get()
-        if language == current_language:
-            return
 
         self._restart_with_language(language)
 
