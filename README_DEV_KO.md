@@ -1,4 +1,4 @@
-# Icon Bundler - Developer Notes
+# Icon Bundler - 개발자 노트
 
 [English](README_DEV.md) | [한국어](README_DEV_KO.md)
 
