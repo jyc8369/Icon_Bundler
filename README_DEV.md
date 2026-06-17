@@ -15,7 +15,7 @@ Current capabilities:
 
 ## Core Files
 
-- `main.py`: GUI, image conversion logic, language restart logic
+- `main.py`: GUI, image conversion logic, and in-place language refresh logic
 - `i18n.py`: text table for `en` and `ko`
 - `release/build/icon_bundler.spec`: PyInstaller spec
 - `release/build/build_macos.sh`: macOS build wrapper
@@ -56,6 +56,7 @@ ICNS export uses these sizes:
 - `128x128`
 - `256x256`
 - `512x512`
+- `1024x1024`
 
 The app imports `PIL.IcnsImagePlugin` so Pillow registers ICNS save support.
 
@@ -65,15 +66,15 @@ Language state is intentionally simple:
 
 - supported values: `en`, `ko`
 - default on first launch: `en`
-- changing the language restarts the GUI process
+- changing the language refreshes registered widget text in the current GUI process
 
-Why restart:
+Why refresh in place:
 
-- It guarantees the whole window is rebuilt with the new language.
-- It avoids stale text in existing widgets.
-- It makes language switching deterministic in packaged builds.
+- It avoids launching a second packaged executable just to switch languages.
+- It keeps the selected source image and output preview in the same window.
+- It centralizes translatable widgets so newly added UI text can be refreshed consistently.
 
-Language selection is passed through environment variables:
+Initial language and optional source path can still be read from environment variables:
 
 - `ICON_BUNDLER_LANGUAGE`
 - `ICON_BUNDLER_SOURCE`
@@ -111,8 +112,22 @@ Release artifacts are named like:
 
 - The app keeps the source image path in memory while the process is running.
 - If a converted file already exists, the app asks before overwriting it.
-- The UI uses a small amount of state and is rebuilt on language change rather than diff-updating widgets.
+- The UI uses a small amount of state and refreshes registered translatable widgets when the language changes.
 - `customtkinter.StringVar` is used for the text fields.
+
+## Testing
+
+Install development dependencies with:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Run the automated conversion checks with:
+
+```bash
+pytest
+```
 
 ## Practical Constraints
 
@@ -120,4 +135,3 @@ Release artifacts are named like:
 - macOS packages should be built on macOS.
 - `ICNS` generation depends on Pillow's ICNS plugin support.
 - Very small or damaged images may not convert cleanly.
-

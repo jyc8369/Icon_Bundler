@@ -17,6 +17,8 @@ TEXTS = {
         "output_label": "Output File",
         "source_placeholder": "No file selected.",
         "output_placeholder": "No output path yet.",
+        "output_candidates_placeholder": "ICO and ICNS output paths appear after selecting a source image.",
+        "output_candidates_body": "ICO output: {ico_path}\nICNS output: {icns_path}",
         "status_idle": "Select a PNG or JPG file.",
         "info": "The output file is saved next to the source image with the same name and a matching extension.",
         "file_dialog_title": "Select Source Image",
@@ -37,6 +39,7 @@ TEXTS = {
         "success_status": "Conversion completed: {path}",
         "invalid_image": "PNG, JPG, and JPEG files only.",
         "missing_source": "Source image does not exist: {path}",
+        "unsupported_output_format": "Unsupported output format.",
     },
     "ko": {
         "app_title": "Icon Bundler",
@@ -49,6 +52,8 @@ TEXTS = {
         "output_label": "출력 파일",
         "source_placeholder": "파일이 선택되지 않았습니다.",
         "output_placeholder": "출력 경로가 없습니다.",
+        "output_candidates_placeholder": "원본 이미지를 선택하면 ICO와 ICNS 출력 경로가 표시됩니다.",
+        "output_candidates_body": "ICO 출력: {ico_path}\nICNS 출력: {icns_path}",
         "status_idle": "PNG 또는 JPG 파일을 선택하세요.",
         "info": "출력 파일명은 원본과 같은 폴더의 동일한 이름과 확장자로 생성됩니다.",
         "file_dialog_title": "원본 이미지 선택",
@@ -69,6 +74,7 @@ TEXTS = {
         "success_status": "변환 완료: {path}",
         "invalid_image": "PNG, JPG, JPEG 파일만 지원합니다.",
         "missing_source": "원본 이미지가 존재하지 않습니다: {path}",
+        "unsupported_output_format": "지원하지 않는 출력 형식입니다.",
     },
 }
 
