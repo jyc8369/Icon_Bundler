@@ -1,13 +1,22 @@
-# Icon Bundler Developer Notes
+# Icon Bundler - Developer Notes
 
+<<<<<<< HEAD
 This guide explains the project structure, conversion flow, localization behavior, packaging setup, and test workflow for developers working on Icon Bundler.
 
 ## Project overview
 
 Icon Bundler is a `CustomTkinter` desktop application that converts raster source images into platform icon files.
+=======
+[English](README_DEV.md) | [한국어](README_DEV_KO.md)
 
-Current capabilities:
+이 문서는 Icon Bundler의 구조와 구현 포인트를 개발자 기준으로 정리합니다.
 
+## 프로젝트 개요
+>>>>>>> origin/main
+
+Icon Bundler는 `CustomTkinter` 기반 데스크톱 앱으로, 래스터 이미지를 아이콘 파일로 변환합니다.
+
+<<<<<<< HEAD
 - Input formats: `PNG`, `JPG`, `JPEG`
 - Output formats: `ICO`, `ICNS`
 - Language options: `en`, `ko`
@@ -41,15 +50,49 @@ The app uses one shared conversion pipeline for ICO and ICNS exports:
 ### ICO export
 
 ICO export uses these sizes, stopping before the first size larger than the source image:
+=======
+지원 범위:
+
+- 입력: `PNG`, `JPG`, `JPEG`
+- 출력: `ICO`, `ICNS`
+- 언어 전환: `en`, `ko`
+- 배포: Windows/macOS용 PyInstaller 패키징
+
+## 핵심 파일
+
+- `main.py`: GUI, 이미지 변환, 언어 전환
+- `i18n.py`: `en`, `ko` 문자열 테이블
+- `release/build/icon_bundler.spec`: PyInstaller spec
+- `release/build/build_macos.sh`: macOS 빌드 스크립트
+- `release/build/build_windows.cmd`: Windows 빌드 스크립트
+- `.github/workflows/release.yml`: 릴리스 파이프라인
+
+## 변환 로직
+
+### 공통 파이프라인
+
+- 원본 이미지 열기
+- EXIF 방향 보정
+- `RGBA` 변환
+- 원본 비율 유지
+- 투명한 정사각형 캔버스 중앙 배치
+- 선택한 포맷으로 저장
+
+### ICO
+>>>>>>> origin/main
 
 - `16x16`
 - `32x32`
 - `48x48`
 - `256x256`
 
+<<<<<<< HEAD
 ### ICNS export
 
 ICNS export uses these sizes, stopping before the first size larger than the source image:
+=======
+### ICNS
+>>>>>>> origin/main
 
 - `16x16`
 - `32x32`
@@ -59,6 +102,7 @@ ICNS export uses these sizes, stopping before the first size larger than the sou
 - `512x512`
 - `1024x1024`
 
+<<<<<<< HEAD
 The app imports `PIL.IcnsImagePlugin` so Pillow registers ICNS save support before conversion.
 
 ## Validation and expected errors
@@ -72,9 +116,17 @@ Conversion failures that can be predicted are represented with explicit exceptio
 The GUI maps these expected exceptions to localized messages before showing them to the user.
 
 ## Language handling
+=======
+## 언어 처리
 
-Language state is intentionally simple:
+- 지원 값은 `en`, `ko`다.
+- 첫 실행 기본값은 `en`이다.
+- 언어 변경 시 현재 창의 등록 위젯 텍스트를 즉시 갱신한다.
+>>>>>>> origin/main
 
+## 구현 시 주의사항
+
+<<<<<<< HEAD
 - Supported values: `en`, `ko`
 - Default language on first launch: `en`
 - Language changes refresh registered widget text in the current GUI process.
@@ -157,3 +209,17 @@ The test suite covers:
 - macOS packages should be built on macOS.
 - ICNS generation depends on Pillow's ICNS plugin support.
 - Very small or damaged images may not convert cleanly.
+=======
+- 동일 이미지 경로를 실행 중 메모리에서 유지한다.
+- 이미 존재하는 출력 파일은 덮어쓰기 전에 확인한다.
+- UI는 언어 변경 시 등록된 요소를 다시 렌더링한다.
+- `customtkinter.StringVar`를 사용한다.
+
+## 테스트
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+>>>>>>> origin/main

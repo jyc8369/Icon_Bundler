@@ -1,16 +1,20 @@
 # Icon Bundler
 
-Icon Bundler is a desktop app that converts `PNG` or `JPG` images into macOS `ICNS` files or Windows `ICO` files.
+[English](README.md) | [한국어](README_KO.md)
 
-The app includes two export buttons:
+Icon Bundler turns a picture into an icon file.
+You can use it to make `ICO` files for Windows or `ICNS` files for macOS.
 
-- `Convert to ICO`
-- `Convert to ICNS`
+## What it does
 
-It keeps the original aspect ratio and pads the remaining area with transparency.
+- Opens a `PNG`, `JPG`, or `JPEG` image
+- Makes a Windows `ICO` file
+- Makes a macOS `ICNS` file
+- Keeps the picture centered and clean
 
-## Download and use
+## How to use
 
+<<<<<<< HEAD
 You do not need to build anything yourself.
 
 1. Open the GitHub Releases page for this repository.
@@ -57,14 +61,17 @@ ICNS export uses these sizes, stopping before the first size larger than the sou
 - `.png`
 - `.jpg`
 - `.jpeg`
+=======
+1. Download the release for your computer.
+2. Open the app.
+3. Pick an image.
+4. Click the icon format you want.
+5. Save the result next to the image.
+>>>>>>> origin/main
 
 ## Notes
 
-- If a file with the same name already exists, the app asks before overwriting it.
-- Very small or damaged images may fail to convert.
-- Windows packages must be used on Windows, and macOS packages must be used on macOS.
-- The macOS package is distributed as a `.app` bundle inside the zip archive.
+- The app keeps the picture size balanced.
+- If a file with the same name already exists, it asks before replacing it.
+- More details are in the developer guide.
 
-## Korean guide
-
-See `README_KO.MD` for Korean instructions.
