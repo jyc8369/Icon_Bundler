@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "repository": "Icon_Bundler",
+  "enabled": true,
+  "featured": true,
+  "order": 2,
+  "category": "Developer Tool",
+  "summary": "",
+  "tags": [],
+  "demoUrl": "",
+  "coverImage": ""
+}
