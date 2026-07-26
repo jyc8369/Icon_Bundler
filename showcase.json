@@ -5,8 +5,13 @@
   "featured": true,
   "order": 2,
   "category": "Developer Tool",
-  "summary": "",
-  "tags": [],
+  "summary": "Convert PNG and JPEG images into Windows ICO or macOS ICNS files with balanced, centered output.",
+  "tags": [
+    "icons",
+    "ico",
+    "icns",
+    "desktop"
+  ],
   "demoUrl": "",
   "coverImage": ""
 }
