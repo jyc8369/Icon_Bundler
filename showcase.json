@@ -1,10 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
   "repository": "Icon_Bundler",
   "enabled": true,
   "featured": true,
   "order": 2,
   "category": "Developer Tool",
+  "title": "Icon Bundler",
   "summary": "Convert PNG and JPEG images into Windows ICO or macOS ICNS files with balanced, centered output.",
   "tags": [
     "icons",
@@ -12,6 +13,18 @@
     "icns",
     "desktop"
   ],
+  "status": "active",
+  "platforms": [
+    "Windows",
+    "macOS"
+  ],
+  "highlights": [
+    "PNG and JPEG input",
+    "Windows ICO export",
+    "macOS ICNS export"
+  ],
   "demoUrl": "",
-  "coverImage": ""
+  "downloadUrl": "https://github.com/jyc8369/Icon_Bundler/releases",
+  "coverImage": "",
+  "accent": "neutral"
 }
