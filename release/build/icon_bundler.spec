@@ -1,8 +1,11 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
+import sys
 
 from PyInstaller.utils.hooks import collect_submodules
-from PyInstaller.building.osx import BUNDLE
+
+if sys.platform == "darwin":
+    from PyInstaller.building.osx import BUNDLE
 
 
 block_cipher = None
@@ -10,6 +13,8 @@ block_cipher = None
 # The workflow runs from release/build, so two parents up is the repository root.
 ROOT = Path.cwd().resolve().parents[1]
 ICON_DIR = Path.cwd().resolve()
+IS_WINDOWS = sys.platform == "win32"
+IS_MACOS = sys.platform == "darwin"
 
 hiddenimports = []
 hiddenimports += collect_submodules("customtkinter")
@@ -40,7 +45,7 @@ exe = EXE(
     [],
     exclude_binaries=True,
     name="IconBundler",
-    icon=str(ICON_DIR / "icon.ico"),
+    icon=str(ICON_DIR / "icon.ico") if IS_WINDOWS else None,
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -63,9 +68,10 @@ coll = COLLECT(
     name="IconBundler",
 )
 
-app = BUNDLE(
-    coll,
-    name="IconBundler.app",
-    icon=str(ICON_DIR / "icon.icns"),
-    bundle_identifier="com.iconbundler.app",
-)
+if IS_MACOS:
+    app = BUNDLE(
+        coll,
+        name="IconBundler.app",
+        icon=str(ICON_DIR / "icon.icns"),
+        bundle_identifier="com.iconbundler.app",
+    )

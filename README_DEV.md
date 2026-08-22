@@ -14,13 +14,14 @@ Current scope:
 - Input: `PNG`, `JPG`, `JPEG`
 - Output: `ICO`, `ICNS`
 - Language switching: `en`, `ko`
-- Packaging: PyInstaller builds for Windows and macOS
+- Packaging: PyInstaller builds for Windows, macOS, and Linux
 
 ## Core files
 
 - `main.py`: GUI, image conversion logic, and immediate language refresh
 - `i18n.py`: `en` and `ko` string table
 - `release/build/icon_bundler.spec`: PyInstaller spec
+- `release/build/build_linux.sh`: Linux build wrapper
 - `release/build/build_macos.sh`: macOS build wrapper
 - `release/build/build_windows.cmd`: Windows build wrapper
 - `.github/workflows/release.yml`: release pipeline
@@ -99,6 +100,7 @@ Important details:
 - Windows uses `icon.ico`
 - macOS uses `icon.icns`
 - macOS output is a `.app` bundle inside the zip archive
+- Linux output is a PyInstaller onedir package inside a `.tar.gz` archive
 
 ### Release workflow
 
@@ -127,6 +129,41 @@ Run the automated conversion checks with:
 ```bash
 pytest
 ```
+
+Before running the tests or the app, install the runtime and development
+dependencies:
+
+```bash
+python -m pip install -r requirements.txt
+python -m pip install -r requirements-dev.txt
+```
+
+The GUI also requires Tk. On Debian/Ubuntu CI and development machines,
+install it with `sudo apt-get install python3-tk`; Fedora uses
+`sudo dnf install python3-tkinter`, and Arch Linux uses `sudo pacman -S tk`.
+Windows Python installations should include **tcl/tk and IDLE**. On macOS,
+the official python.org installer is the recommended starting point.
+
+Run the source application with:
+
+```bash
+python main.py
+```
+
+## Platform verification
+
+The release workflow performs these automated checks:
+
+- Windows: builds the PyInstaller onedir output and archives its contents.
+- macOS: builds the `.app` bundle and archives it with `ditto`.
+- Linux: builds the onedir output, verifies the executable exists, and archives
+  it as `.tar.gz`.
+
+Each platform still needs one GUI smoke test on a desktop session: start the
+packaged app, open a PNG/JPG file, create an ICO and an ICNS file, and confirm
+that the output files open successfully. CI does not attempt to automate this
+interactive test because hosted runners do not provide a consistent desktop
+session.
 
 The test suite covers:
 
@@ -158,7 +195,7 @@ Icon Bundler는 `CustomTkinter` 기반 데스크톱 앱으로, 래스터 이미�
 - 입력: `PNG`, `JPG`, `JPEG`
 - 출력: `ICO`, `ICNS`
 - 언어 전환: `en`, `ko`
-- 배포: Windows/macOS용 PyInstaller 패키징
+- 배포: Windows/macOS/Linux용 PyInstaller 패키징
 
 ## 핵심 파일
 
@@ -243,6 +280,7 @@ PyInstaller spec는 `release/build`에서 실행되도록 작성되어 있습니
 - Windows는 `icon.ico`
 - macOS는 `icon.icns`
 - macOS 결과물은 zip 안의 `.app` 번들
+- Linux 결과물은 `.tar.gz` 안의 PyInstaller onedir 패키지
 
 ### 릴리스 워크플로
 
@@ -251,12 +289,20 @@ PyInstaller spec는 `release/build`에서 실행되도록 작성되어 있습니
 - Windows: `windows-latest`
 - macOS arm64: `macos-15`
 - macOS x86_64: `macos-15-intel`
+- Linux x86_64: `ubuntu-24.04`
 
 릴리스 산출물 이름:
 
 - `IconBundler-<version>-windows.zip`
 - `IconBundler-<version>-macos-arm64.zip`
 - `IconBundler-<version>-macos-x86_64.zip`
+- `IconBundler-<version>-linux-x86_64.tar.gz`
+
+Linux distribution decision:
+
+- The first Linux release format is `.tar.gz`, containing the PyInstaller onedir output.
+- Users extract the archive and run `IconBundler/IconBundler`.
+- AppImage is a possible follow-up format after the first Linux release is validated; it is not part of the current release workflow.
 
 ## 테스트
 
@@ -285,5 +331,8 @@ pytest
 
 - Windows 패키지는 Windows에서 빌드해야 합니다.
 - macOS 패키지는 macOS에서 빌드해야 합니다.
+- Linux 패키지는 Ubuntu에서 빌드하며, 현재 배포 형식은 PyInstaller onedir 결과를 담은 `.tar.gz`입니다.
+- Linux 사용자는 압축을 푼 뒤 `IconBundler/IconBundler`를 실행합니다.
+- AppImage는 첫 Linux 릴리스 검증 후 후속 배포 형식으로 검토합니다.
 - `ICNS` 생성은 Pillow의 ICNS 플러그인 지원에 의존합니다.
 - 너무 작거나 손상된 이미지는 변환에 실패할 수 있습니다.
