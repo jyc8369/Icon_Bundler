@@ -16,15 +16,15 @@ jobs:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/pip
@@ -53,7 +53,7 @@ jobs:
           Compress-Archive -Path "build-output\dist\IconBundler.exe" -DestinationPath "$outDir\IconBundler-$version-windows.zip"
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: windows-release
           path: release/artifacts/windows/IconBundler-*-windows.zip
@@ -65,16 +65,16 @@ jobs:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           architecture: arm64
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-arm64-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
@@ -166,7 +166,7 @@ jobs:
           rm -f "$RUNNER_TEMP/developer-id.p12" "$RUNNER_TEMP"/AuthKey_*.p8 "$RUNNER_TEMP/IconBundler-notarize.zip"
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macos-arm64-release
           path: release/artifacts/macos/IconBundler-*-macos-arm64.zip
@@ -178,16 +178,16 @@ jobs:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           architecture: x64
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-x64-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
@@ -279,7 +279,7 @@ jobs:
           rm -f "$RUNNER_TEMP/developer-id.p12" "$RUNNER_TEMP"/AuthKey_*.p8 "$RUNNER_TEMP/IconBundler-notarize.zip"
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: macos-x86_64-release
           path: release/artifacts/macos/IconBundler-*-macos-x86_64.zip
@@ -291,10 +291,10 @@ jobs:
         working-directory: .
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -302,7 +302,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install --yes python3-tk
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/pip
           key: pip-${{ runner.os }}-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
@@ -329,7 +329,7 @@ jobs:
           tar -czf "$out_dir/IconBundler-${version}-linux-x86_64.tar.gz" -C build-output/dist IconBundler
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: linux-release
           path: release/artifacts/linux/IconBundler-*-linux-x86_64.tar.gz
@@ -343,25 +343,25 @@ jobs:
       - build-linux
     steps:
       - name: Download Windows artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: windows-release
           path: release/artifacts/windows
 
       - name: Download macOS arm64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: macos-arm64-release
           path: release/artifacts/macos
 
       - name: Download macOS x86_64 artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: macos-x86_64-release
           path: release/artifacts/macos
 
       - name: Download Linux artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: linux-release
           path: release/artifacts/linux
