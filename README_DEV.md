@@ -18,12 +18,13 @@ Current scope:
 
 ## Core files
 
-- `main.py`: GUI, image conversion logic, and immediate language refresh
-- `i18n.py`: `en` and `ko` string table
-- `release/build/icon_bundler.spec`: PyInstaller spec
-- `release/build/build_linux.sh`: Linux build wrapper
-- `release/build/build_macos.sh`: macOS build wrapper
-- `release/build/build_windows.cmd`: Windows build wrapper
+- `src/icon_bundler/app.py`: GUI and immediate language refresh
+- `src/icon_bundler/conversion.py`: ICO/ICNS conversion logic
+- `src/icon_bundler/i18n.py`: locale loader and language selection
+- `src/icon_bundler/locales/*.json`: translated strings, one file per language
+- `packaging/pyinstaller/icon_bundler.spec`: PyInstaller spec
+- `scripts/build/`: platform build wrappers
+- `assets/`: application and platform icons
 - `.github/workflows/release.yml`: release pipeline
 
 ## Image conversion flow
@@ -62,9 +63,11 @@ Pillow's ICNS save support is enabled by importing `PIL.IcnsImagePlugin`.
 
 ## Language handling
 
-- Supported values: `en`, `ko`
+- Translation strings are stored in `src/icon_bundler/locales/<language>.json`, one file per language.
+- `i18n.py` loads the JSON files and discovers the supported language codes from their filenames (`en`, `ja`, `ko`).
 - Default language on first launch: `en`
-- Changing the language refreshes registered widget text in the current GUI process immediately
+- Every locale file must define the same translation keys and formatting placeholders.
+- Changing the language refreshes registered widget text in the current GUI process immediately.
 
 Why the app refreshes in place:
 
@@ -90,18 +93,17 @@ The selected output path still follows the conversion button the user presses, w
 
 ### Spec layout
 
-The PyInstaller spec is written to run from `release/build`.
+The PyInstaller spec lives in `packaging/pyinstaller`; build wrappers can be run from any current directory. They write temporary build files to `build-output/` and release archives to `release/artifacts/`.
 
 Important details:
 
-- `ROOT = Path.cwd().resolve().parents[1]`
-- `ICON_DIR = Path.cwd().resolve()`
-- `i18n` is listed in `hiddenimports`
-- Windows uses `icon.ico`
-- macOS uses `icon.icns`
-- macOS output is a `.app` bundle inside the zip archive
-- Windows and Linux outputs are standalone PyInstaller onefile executables
-- macOS output is a `.app` bundle containing a onefile executable
+- `ROOT` is derived from PyInstaller's `SPECPATH`, so builds do not depend on the caller's working directory.
+- Source modules live under `src/icon_bundler/`; platform icons live under `assets/`.
+- Locale JSON files are copied to `icon_bundler/locales` in the packaged application.
+- The spec includes the `icon_bundler.i18n` module as a hidden import.
+- Windows uses `assets/icon.ico`; macOS uses `assets/icon.icns`.
+- The macOS build creates a `.app` bundle containing a onefile executable; Windows and Linux create standalone onefile executables.
+- Build wrappers write intermediate files to `build-output/`; the workflow writes release archives to `release/artifacts/`.
 
 ### Release workflow
 
@@ -212,11 +214,13 @@ Icon Bundler는 `CustomTkinter` 기반 데스크톱 앱으로, 래스터 이미�
 
 ## 핵심 파일
 
-- `main.py`: GUI, 이미지 변환 로직, 언어 즉시 갱신
-- `i18n.py`: `en`, `ko` 문자열 테이블
-- `release/build/icon_bundler.spec`: PyInstaller spec
-- `release/build/build_macos.sh`: macOS 빌드 래퍼
-- `release/build/build_windows.cmd`: Windows 빌드 래퍼
+- `src/icon_bundler/app.py`: GUI와 언어 즉시 갱신
+- `src/icon_bundler/conversion.py`: ICO/ICNS 변환 로직
+- `src/icon_bundler/i18n.py`: 언어 파일 로더와 언어 선택
+- `src/icon_bundler/locales/*.json`: 언어별 번역 문자열
+- `packaging/pyinstaller/icon_bundler.spec`: PyInstaller spec
+- `scripts/build/`: 운영체제별 빌드 스크립트
+- `assets/`: 프로그램 및 플랫폼 아이콘
 - `.github/workflows/release.yml`: 릴리스 파이프라인
 
 ## 이미지 변환 로직
@@ -255,9 +259,11 @@ ICNS 내보내기 크기:
 
 ## 언어 처리
 
-- 지원 값: `en`, `ko`
+- 번역 문자열은 `src/icon_bundler/locales/<언어 코드>.json`에 언어별로 저장합니다.
+- `i18n.py`가 JSON 파일을 읽고 파일명에서 지원 언어 코드(`en`, `ja`, `ko`)를 찾습니다.
 - 첫 실행 기본값: `en`
-- 언어 변경 시 현재 GUI 프로세스에서 등록된 위젯 텍스트를 즉시 갱신합니다
+- 모든 언어 파일은 같은 번역 키와 서식용 플레이스홀더를 제공해야 합니다.
+- 언어를 변경하면 현재 GUI 프로세스에서 등록된 위젯 텍스트를 즉시 갱신합니다.
 
 즉시 갱신하는 이유:
 
@@ -283,18 +289,17 @@ ICNS 내보내기 크기:
 
 ### spec 구조
 
-PyInstaller spec는 `release/build`에서 실행되도록 작성되어 있습니다.
+PyInstaller spec는 `packaging/pyinstaller`에 있으며 빌드 스크립트는 어느 디렉터리에서든 실행할 수 있습니다. 임시 빌드 파일은 `build-output/`, 배포 압축 파일은 `release/artifacts/`에 생성됩니다.
 
 중요한 점:
 
-- `ROOT = Path.cwd().resolve().parents[1]`
-- `ICON_DIR = Path.cwd().resolve()`
-- `i18n`을 `hiddenimports`에 포함
-- Windows는 `icon.ico`
-- macOS는 `icon.icns`
-- macOS 결과물은 zip 안의 `.app` 번들
-- Windows/Linux 결과물은 PyInstaller onefile 실행 파일
-- macOS 결과물은 onefile 실행 파일을 포함한 `.app` 번들
+- `ROOT`는 PyInstaller의 `SPECPATH`에서 계산하므로 빌드를 호출한 현재 디렉터리에 영향을 받지 않습니다.
+- 앱 모듈은 `src/icon_bundler/`, 플랫폼 아이콘은 `assets/`에 있습니다.
+- 언어별 JSON 파일은 패키지 안의 `icon_bundler/locales`로 복사됩니다.
+- spec에서 `icon_bundler.i18n`을 hidden import로 지정합니다.
+- Windows 아이콘은 `assets/icon.ico`, macOS 아이콘은 `assets/icon.icns`입니다.
+- macOS는 onefile 실행 파일을 포함하는 `.app` 번들을 만들고, Windows와 Linux는 onefile 실행 파일을 만듭니다.
+- 중간 빌드 파일은 `build-output/`, 릴리스 압축 파일은 `release/artifacts/`에 생성됩니다.
 
 ### 릴리스 워크플로
 

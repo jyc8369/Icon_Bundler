@@ -4,9 +4,9 @@ import sys
 import pytest
 from PIL import Image
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from main import (
+from icon_bundler.conversion import (
     ICNS_SIZES,
     MissingSourceError,
     UnsupportedOutputFormatError,

@@ -1,9 +1,8 @@
-__pycache__
+__pycache__/
+*.py[cod]
 .venv/
 dist/
-.DS_Store
-release/build/build/
-release/build/dist/
+build-output/
 release/artifacts/
 .DS_Store
-*.pyc
+release/build/

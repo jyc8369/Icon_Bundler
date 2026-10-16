@@ -13,7 +13,7 @@ jobs:
     runs-on: windows-latest
     defaults:
       run:
-        working-directory: release/build
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,28 +29,28 @@ jobs:
           path: |
             ~/.cache/pip
             ~\AppData\Local\pip\Cache
-          key: pip-${{ runner.os }}-py312-${{ hashFiles('requirements.txt', 'release/build/requirements-build.txt') }}
+          key: pip-${{ runner.os }}-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-py312-
 
       - name: Install dependencies
         run: |
-          pip install -r ../../requirements.txt
-          pip install -r requirements-build.txt
+          pip install -r requirements.txt
+          pip install -r packaging/pyinstaller/requirements-build.txt
 
       - name: Build Windows package
         shell: cmd
-        run: build_windows.cmd
+        run: scripts\build\build_windows.cmd
 
       - name: Zip Windows package
         shell: pwsh
         run: |
-          if (-not (Test-Path "dist\IconBundler.exe")) { throw "Windows executable was not created." }
+          if (-not (Test-Path "build-output\dist\IconBundler.exe")) { throw "Windows executable was not created." }
           $version = "${env:GITHUB_REF_NAME}" -replace '^v', ''
-          $outDir = "../artifacts/windows"
+          $outDir = "release\artifacts\windows"
           if (Test-Path $outDir) { Remove-Item -Recurse -Force $outDir }
           New-Item -ItemType Directory -Path $outDir -Force | Out-Null
-          Compress-Archive -Path "dist\IconBundler.exe" -DestinationPath "$outDir\IconBundler-$version-windows.zip"
+          Compress-Archive -Path "build-output\dist\IconBundler.exe" -DestinationPath "$outDir\IconBundler-$version-windows.zip"
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
@@ -62,7 +62,7 @@ jobs:
     runs-on: macos-15
     defaults:
       run:
-        working-directory: release/build
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,14 +77,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ runner.os }}-arm64-py312-${{ hashFiles('requirements.txt', 'release/build/requirements-build.txt') }}
+          key: pip-${{ runner.os }}-arm64-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-arm64-py312-
 
       - name: Install dependencies
         run: |
-          pip install -r ../../requirements.txt
-          pip install -r requirements-build.txt
+          pip install -r requirements.txt
+          pip install -r packaging/pyinstaller/requirements-build.txt
 
       - name: Import Developer ID certificate
         env:
@@ -120,8 +120,8 @@ jobs:
         env:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
-          chmod +x build_macos.sh
-          ./build_macos.sh
+          chmod +x scripts/build/build_macos.sh
+          ./scripts/build/build_macos.sh
 
       - name: Notarize macOS app
         env:
@@ -134,7 +134,7 @@ jobs:
           test -n "$APPLE_API_KEY_P8"
           test -n "$APPLE_API_KEY_ID"
           test -n "$APPLE_API_ISSUER"
-          APP="$PWD/dist/IconBundler.app"
+          APP="$PWD/build-output/dist/IconBundler.app"
           API_KEY_PATH="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY_ID}.p8"
           NOTARY_ZIP="$RUNNER_TEMP/IconBundler-notarize.zip"
           printf '%s' "$APPLE_API_KEY_P8" > "$API_KEY_PATH"
@@ -152,12 +152,12 @@ jobs:
 
       - name: Zip macOS app
         run: |
-          test -x "dist/IconBundler.app/Contents/MacOS/IconBundler"
+          test -x "build-output/dist/IconBundler.app/Contents/MacOS/IconBundler"
           version="${GITHUB_REF_NAME#v}"
-          out_dir="../artifacts/macos"
+          out_dir="release/artifacts/macos"
           rm -rf "$out_dir"
           mkdir -p "$out_dir"
-          ditto -c -k --sequesterRsrc --keepParent "dist/IconBundler.app" "$out_dir/IconBundler-${version}-macos-arm64.zip"
+          ditto -c -k --sequesterRsrc --keepParent "build-output/dist/IconBundler.app" "$out_dir/IconBundler-${version}-macos-arm64.zip"
 
       - name: Clean up signing credentials
         if: always()
@@ -175,7 +175,7 @@ jobs:
     runs-on: macos-15-intel
     defaults:
       run:
-        working-directory: release/build
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -190,14 +190,14 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ runner.os }}-x64-py312-${{ hashFiles('requirements.txt', 'release/build/requirements-build.txt') }}
+          key: pip-${{ runner.os }}-x64-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-x64-py312-
 
       - name: Install dependencies
         run: |
-          pip install -r ../../requirements.txt
-          pip install -r requirements-build.txt
+          pip install -r requirements.txt
+          pip install -r packaging/pyinstaller/requirements-build.txt
 
       - name: Import Developer ID certificate
         env:
@@ -233,8 +233,8 @@ jobs:
         env:
           MACOS_SIGNING_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
         run: |
-          chmod +x build_macos.sh
-          ./build_macos.sh
+          chmod +x scripts/build/build_macos.sh
+          ./scripts/build/build_macos.sh
 
       - name: Notarize macOS app
         env:
@@ -247,7 +247,7 @@ jobs:
           test -n "$APPLE_API_KEY_P8"
           test -n "$APPLE_API_KEY_ID"
           test -n "$APPLE_API_ISSUER"
-          APP="$PWD/dist/IconBundler.app"
+          APP="$PWD/build-output/dist/IconBundler.app"
           API_KEY_PATH="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY_ID}.p8"
           NOTARY_ZIP="$RUNNER_TEMP/IconBundler-notarize.zip"
           printf '%s' "$APPLE_API_KEY_P8" > "$API_KEY_PATH"
@@ -265,12 +265,12 @@ jobs:
 
       - name: Zip macOS app
         run: |
-          test -x "dist/IconBundler.app/Contents/MacOS/IconBundler"
+          test -x "build-output/dist/IconBundler.app/Contents/MacOS/IconBundler"
           version="${GITHUB_REF_NAME#v}"
-          out_dir="../artifacts/macos"
+          out_dir="release/artifacts/macos"
           rm -rf "$out_dir"
           mkdir -p "$out_dir"
-          ditto -c -k --sequesterRsrc --keepParent "dist/IconBundler.app" "$out_dir/IconBundler-${version}-macos-x86_64.zip"
+          ditto -c -k --sequesterRsrc --keepParent "build-output/dist/IconBundler.app" "$out_dir/IconBundler-${version}-macos-x86_64.zip"
 
       - name: Clean up signing credentials
         if: always()
@@ -288,7 +288,7 @@ jobs:
     runs-on: ubuntu-24.04
     defaults:
       run:
-        working-directory: release/build
+        working-directory: .
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -305,28 +305,28 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.cache/pip
-          key: pip-${{ runner.os }}-py312-${{ hashFiles('requirements.txt', 'release/build/requirements-build.txt') }}
+          key: pip-${{ runner.os }}-py312-${{ hashFiles('requirements.txt', 'packaging/pyinstaller/requirements-build.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-py312-
 
       - name: Install dependencies
         run: |
-          python -m pip install -r ../../requirements.txt
-          python -m pip install -r requirements-build.txt
+          python -m pip install -r requirements.txt
+          python -m pip install -r packaging/pyinstaller/requirements-build.txt
 
       - name: Build Linux package
         run: |
-          chmod +x build_linux.sh
-          ./build_linux.sh
+          chmod +x scripts/build/build_linux.sh
+          ./scripts/build/build_linux.sh
 
       - name: Archive Linux package
         run: |
-          test -x "dist/IconBundler"
+          test -x "build-output/dist/IconBundler"
           version="${GITHUB_REF_NAME#v}"
-          out_dir="../artifacts/linux"
+          out_dir="release/artifacts/linux"
           rm -rf "$out_dir"
           mkdir -p "$out_dir"
-          tar -czf "$out_dir/IconBundler-${version}-linux-x86_64.tar.gz" -C dist IconBundler
+          tar -czf "$out_dir/IconBundler-${version}-linux-x86_64.tar.gz" -C build-output/dist IconBundler
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4

@@ -1,4 +1,4 @@
-[English](#english) | [한국어](#korean)
+[English](#english) | [한국어](#korean) | [日本語](#japanese)
 
 
 <a name="english"></a>
@@ -13,6 +13,7 @@ You can use it to make `ICO` files for Windows or `ICNS` files for macOS.
 - Makes a Windows `ICO` file
 - Makes a macOS `ICNS` file
 - Keeps the picture centered and clean
+- Supports English, Japanese, and Korean; change the language with the menu in the app
 
 ## How to use
 
@@ -22,8 +23,9 @@ You can use it to make `ICO` files for Windows or `ICNS` files for macOS.
    - Linux: `.tar.gz`
 2. Open the app.
 3. Select an image.
-4. Click the icon format you want.
-5. Save the output file.
+4. Choose English (`en`), Japanese (`ja`), or Korean (`ko`) from the language menu if needed.
+5. Click the icon format you want.
+6. Save the output file.
 
 ## Running from source
 
@@ -58,7 +60,7 @@ macOS open the `.app`; on Windows run `IconBundler.exe`.
 - More details are in the developer guide.
 
 
-[English](#english) | [한국어](#korean)
+[English](#english) | [한국어](#korean) | [日本語](#japanese)
 
 
 <a name="korean"></a>
@@ -74,6 +76,7 @@ Windows용 `ICO` 파일이나 macOS용 `ICNS` 파일을 만들 수 있습니다.
 - Windows용 `ICO` 만들기
 - macOS용 `ICNS` 만들기
 - 사진을 가운데에 맞춰 보기 좋게 처리하기
+- 영어, 일본어, 한국어 지원 및 앱 안에서 언어 전환
 
 ## 사용 방법
 
@@ -83,8 +86,9 @@ Windows용 `ICO` 파일이나 macOS용 `ICNS` 파일을 만들 수 있습니다.
    - Linux: `.tar.gz`
 2. 프로그램을 엽니다.
 3. 이미지를 선택합니다.
-4. 원하는 아이콘 형식을 누릅니다.
-5. 결과 파일을 저장합니다.
+4. 필요하면 언어 메뉴에서 영어(`en`), 일본어(`ja`), 한국어(`ko`) 중 원하는 언어를 선택합니다.
+5. 원하는 아이콘 형식을 누릅니다.
+6. 결과 파일을 저장합니다.
 
 ## 참고
 
@@ -117,3 +121,62 @@ python main.py
 
 다운로드한 패키지는 먼저 압축을 풉니다. Linux는 `IconBundler`,
 macOS는 `.app`, Windows는 `IconBundler.exe`를 실행합니다.
+
+
+<a name="japanese"></a>
+# Icon Bundler
+
+Icon Bundler は、画像からアイコンファイルを作成するアプリです。
+Windows 用の `ICO` ファイルと macOS 用の `ICNS` ファイルを作成できます。
+
+## 主な機能
+
+- `PNG`、`JPG`、`JPEG` 画像を開く
+- Windows 用 `ICO` ファイルを作成
+- macOS 用 `ICNS` ファイルを作成
+- 画像を中央に配置し、縦横比を保って変換
+- 英語、日本語、韓国語に対応。アプリ内のメニューから言語を切り替え可能
+
+## 使い方
+
+1. お使いの OS に合ったファイルをダウンロードします。
+   - Windows: `.zip`
+   - macOS: `.app` を含む `.zip`
+   - Linux: `.tar.gz`
+2. アプリを起動します。
+3. 画像を選択します。
+4. 必要に応じて言語メニューから英語（`en`）、日本語（`ja`）、韓国語（`ko`）を選択します。
+5. 作成するアイコン形式を選びます。
+6. 出力ファイルを保存します。
+
+## ソースから実行する
+
+Python 3.12 以降を推奨します。まず、依存パッケージをインストールします。
+
+```bash
+python -m pip install -r requirements.txt
+```
+
+ファイル選択ダイアログには Tk が必要です。`tkinter` が見つからない場合は、
+お使いの OS に合わせて以下をインストールしてください。
+
+- Windows: python.org のインストーラーで **tcl/tk and IDLE** を選択
+- macOS: python.org の公式インストーラーを使用するか、Homebrew で Tcl/Tk をインストール
+- Debian/Ubuntu: `sudo apt-get install python3-tk`
+- Fedora: `sudo dnf install python3-tkinter`
+- Arch Linux: `sudo pacman -S tk`
+
+アプリを起動します。
+
+```bash
+python main.py
+```
+
+ダウンロードしたファイルは展開してから起動してください。Linux では `IconBundler`、
+macOS では `.app`、Windows では `IconBundler.exe` を実行します。
+
+## 補足
+
+- 画像の縦横比を保ってアイコンに変換します。
+- 同じ名前のファイルがある場合は、上書きするか確認します。
+- 開発者向けの情報は `README_DEV.md` をご覧ください。
