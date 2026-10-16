@@ -100,7 +100,8 @@ Important details:
 - Windows uses `icon.ico`
 - macOS uses `icon.icns`
 - macOS output is a `.app` bundle inside the zip archive
-- Linux output is a PyInstaller onedir package inside a `.tar.gz` archive
+- Windows and Linux outputs are standalone PyInstaller onefile executables
+- macOS output is a `.app` bundle containing a onefile executable
 
 ### Release workflow
 
@@ -115,6 +116,18 @@ Release artifacts are named like:
 - `IconBundler-<version>-windows.zip`
 - `IconBundler-<version>-macos-arm64.zip`
 - `IconBundler-<version>-macos-x86_64.zip`
+- `IconBundler-<version>-linux-x86_64.tar.gz`
+
+Both macOS jobs sign with a Developer ID Application certificate, notarize the
+app with Apple's `notarytool`, staple the ticket, and then create the release
+ZIP. Configure these repository Actions secrets:
+
+- `MACOS_CERTIFICATE_P12_BASE64`
+- `MACOS_CERTIFICATE_P12_PASSWORD`
+- `MACOS_SIGNING_IDENTITY`
+- `APPLE_API_KEY_P8`
+- `APPLE_API_KEY_ID`
+- `APPLE_API_ISSUER`
 
 ## Testing
 
@@ -154,10 +167,10 @@ python main.py
 
 The release workflow performs these automated checks:
 
-- Windows: builds the PyInstaller onedir output and archives its contents.
+- Windows: builds the standalone executable and archives it in a `.zip`.
 - macOS: builds the `.app` bundle and archives it with `ditto`.
-- Linux: builds the onedir output, verifies the executable exists, and archives
-  it as `.tar.gz`.
+- Linux: builds the standalone executable, verifies it exists, and archives it
+  as `.tar.gz`.
 
 Each platform still needs one GUI smoke test on a desktop session: start the
 packaged app, open a PNG/JPG file, create an ICO and an ICNS file, and confirm
@@ -280,7 +293,8 @@ PyInstaller spec는 `release/build`에서 실행되도록 작성되어 있습니
 - Windows는 `icon.ico`
 - macOS는 `icon.icns`
 - macOS 결과물은 zip 안의 `.app` 번들
-- Linux 결과물은 `.tar.gz` 안의 PyInstaller onedir 패키지
+- Windows/Linux 결과물은 PyInstaller onefile 실행 파일
+- macOS 결과물은 onefile 실행 파일을 포함한 `.app` 번들
 
 ### 릴리스 워크플로
 
@@ -298,10 +312,21 @@ PyInstaller spec는 `release/build`에서 실행되도록 작성되어 있습니
 - `IconBundler-<version>-macos-x86_64.zip`
 - `IconBundler-<version>-linux-x86_64.tar.gz`
 
+두 macOS job은 Developer ID Application 인증서로 앱을 서명하고, Apple
+`notarytool`로 공증한 뒤 티켓을 부착한 다음 릴리스 ZIP을 만듭니다. 저장소의
+Actions Secrets에 다음 값을 등록해야 합니다.
+
+- `MACOS_CERTIFICATE_P12_BASE64`
+- `MACOS_CERTIFICATE_P12_PASSWORD`
+- `MACOS_SIGNING_IDENTITY`
+- `APPLE_API_KEY_P8`
+- `APPLE_API_KEY_ID`
+- `APPLE_API_ISSUER`
+
 Linux distribution decision:
 
-- The first Linux release format is `.tar.gz`, containing the PyInstaller onedir output.
-- Users extract the archive and run `IconBundler/IconBundler`.
+- The first Linux release format is `.tar.gz`, containing the standalone `IconBundler` executable.
+- Users extract the archive and run `IconBundler`.
 - AppImage is a possible follow-up format after the first Linux release is validated; it is not part of the current release workflow.
 
 ## 테스트
@@ -331,8 +356,10 @@ pytest
 
 - Windows 패키지는 Windows에서 빌드해야 합니다.
 - macOS 패키지는 macOS에서 빌드해야 합니다.
-- Linux 패키지는 Ubuntu에서 빌드하며, 현재 배포 형식은 PyInstaller onedir 결과를 담은 `.tar.gz`입니다.
-- Linux 사용자는 압축을 푼 뒤 `IconBundler/IconBundler`를 실행합니다.
+- Windows 및 Linux 패키지는 PyInstaller onefile 실행 파일입니다.
+- macOS 패키지는 onefile 실행 파일을 포함한 `.app` 번들입니다.
+- Linux 패키지는 Ubuntu에서 빌드하며 `.tar.gz`에 `IconBundler` 실행 파일 하나를 담습니다.
+- Linux 사용자는 압축을 푼 뒤 `IconBundler`를 실행합니다.
 - AppImage는 첫 Linux 릴리스 검증 후 후속 배포 형식으로 검토합니다.
 - `ICNS` 생성은 Pillow의 ICNS 플러그인 지원에 의존합니다.
 - 너무 작거나 손상된 이미지는 변환에 실패할 수 있습니다.

@@ -1,1 +1,2 @@
-PyInstaller>=6.0.0
+# PyInstaller 7 removes onefile macOS .app bundle support used by this spec.
+PyInstaller>=6.0.0,<7

@@ -48,9 +48,8 @@ Start the app with:
 python main.py
 ```
 
-For a downloaded package, extract it first. On Linux run
-`IconBundler/IconBundler`; on macOS open the `.app`; on Windows run
-`IconBundler.exe`.
+For a downloaded package, extract it first. On Linux run `IconBundler`; on
+macOS open the `.app`; on Windows run `IconBundler.exe`.
 
 ## Notes
 
@@ -116,5 +115,5 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-다운로드한 패키지는 먼저 압축을 풉니다. Linux는 `IconBundler/IconBundler`,
+다운로드한 패키지는 먼저 압축을 풉니다. Linux는 `IconBundler`,
 macOS는 `.app`, Windows는 `IconBundler.exe`를 실행합니다.

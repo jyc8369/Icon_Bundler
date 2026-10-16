@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 from pathlib import Path
+import os
 import sys
 
 from PyInstaller.utils.hooks import collect_submodules
@@ -15,6 +16,7 @@ ROOT = Path.cwd().resolve().parents[1]
 ICON_DIR = Path.cwd().resolve()
 IS_WINDOWS = sys.platform == "win32"
 IS_MACOS = sys.platform == "darwin"
+SIGNING_IDENTITY = os.environ.get("MACOS_SIGNING_IDENTITY") or None
 
 hiddenimports = []
 hiddenimports += collect_submodules("customtkinter")
@@ -42,8 +44,9 @@ pyz = PYZ(a.pure, a.zipped_data)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.datas,
     [],
-    exclude_binaries=True,
     name="IconBundler",
     icon=str(ICON_DIR / "icon.ico") if IS_WINDOWS else None,
     debug=False,
@@ -54,23 +57,13 @@ exe = EXE(
     disable_windowed_traceback=False,
     argv_emulation=False,
     target_arch=None,
-    codesign_identity=None,
+    codesign_identity=SIGNING_IDENTITY,
     entitlements_file=None,
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name="IconBundler",
 )
 
 if IS_MACOS:
     app = BUNDLE(
-        coll,
+        exe,
         name="IconBundler.app",
         icon=str(ICON_DIR / "icon.icns"),
         bundle_identifier="com.iconbundler.app",
